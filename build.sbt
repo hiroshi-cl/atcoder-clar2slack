@@ -1,4 +1,4 @@
-name := "clarToSlack"
+name := "atcoder-clar2slack"
 version := "1.0"
 scalaVersion := "2.11.7"
 
