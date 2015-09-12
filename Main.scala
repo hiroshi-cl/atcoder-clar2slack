@@ -4,22 +4,16 @@ import org.jsoup._
 import collection.JavaConversions._
 
 object Main {
-  val atcoderName = ""
-  val atcoderPass = ""
-  val atcoderUrl = ""
-  val webhookUrl = ""
-  val sleepTime = 10000
-
   var notified = Set[String]()
 
   def main(args: Array[String]): Unit = {
-    val cookie: String = atcoderLogin()
-    getClars(cookie)
+    implicit val cookie: String = atcoderLogin()
+    getClars()
 
     while (true) {
-      Thread.sleep(sleepTime)
+      Thread.sleep(Const.sleepTime)
       println("check")
-      val clars = getClars(cookie)
+      val clars = getClars()
       for (text <- clars) {
         slackPostMessage(text)
       }
@@ -27,14 +21,14 @@ object Main {
   }
 
   def atcoderLogin(): String = {
-    val url = s"${atcoderUrl}/login"
-    val response: HttpResponse[String] = Http(url).postForm(Seq("name"->atcoderName, "password"->atcoderPass)).asString
+    val url = s"${Const.atcoderUrl}/login"
+    val response: HttpResponse[String] = Http(url).postForm(Seq("name"->Const.atcoderName, "password"->Const.atcoderPass)).asString
     response.headers("Set-Cookie").toString.replace(",", ";")
   }
 
-  def getClars(cookie: String): List[String] = {
+  def getClars()(implicit cookie: String): List[String] = {
     var clars = List.empty[String]
-    val url = s"${atcoderUrl}/clarifications"
+    val url = s"${Const.atcoderUrl}/clarifications"
     val response: HttpResponse[String] = Http(url).headers(Seq("Cookie"->cookie)).asString
     val doc = Jsoup.parse(response.body)
     val trs = doc.select("tbody").head.select("tr")
@@ -50,10 +44,10 @@ object Main {
       val pattern = """([0-9]+)""".r
       val clarId = pattern.findFirstIn(reply.attr("href").toString).getOrElse("-1")
       val text = s"""|[Clar通知]
-                     |問題名：<${atcoderUrl}${problem.attr("href")}|${problem.text}>
-                     |ユーザ名：<${atcoderUrl}${user.attr("href")}|${user.text}>
+                     |問題名：<${Const.atcoderUrl}${problem.attr("href")}|${problem.text}>
+                     |ユーザ名：<${Const.atcoderUrl}${user.attr("href")}|${user.text}>
                      |質問：${question.text}
-                     |<${atcoderUrl}${reply.attr("href")}|質問に回答する>""".stripMargin
+                     |<${Const.atcoderUrl}${reply.attr("href")}|質問に回答する>""".stripMargin
 
       if (!notified.contains(clarId)) {
         notified = notified + clarId
@@ -66,8 +60,7 @@ object Main {
 
   def slackPostMessage(text: String): Unit = {
     val payload: String = JsObject("text"->JsString(text)).toString
-    val url: String = webhookUrl
-    Http(url).postForm(Seq("payload"->payload)).asString
+    Http(Const.webhookUrl).postForm(Seq("payload"->payload)).asString
     println("post: " + payload)
   }
 }
