@@ -47,7 +47,7 @@ object Main {
 
       val pattern = """([0-9]+)""".r
       val clarId = pattern.findFirstIn(reply.attr("href").toString).getOrElse("-1")
-      val text = s"""|[Clar通知]
+      val text = s"""|[Clar No.${clarId}]
                      |問題名：<${Const.atcoderUrl}${problem.attr("href")}|${problem.text}>
                      |ユーザ名：<${Const.atcoderUrl}${user.attr("href")}|${user.text}>
                      |質問：${question.text}
