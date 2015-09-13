@@ -22,14 +22,18 @@ object Main {
 
   def atcoderLogin(): String = {
     val url = s"${Const.atcoderUrl}/login"
-    val response: HttpResponse[String] = Http(url).postForm(Seq("name"->Const.atcoderName, "password"->Const.atcoderPass)).asString
+    val response: HttpResponse[String] = Http(url)
+      .timeout(connTimeoutMs = Const.httpConnTimeout, readTimeoutMs = Const.httpReadTimeout)
+      .postForm(Seq("name"->Const.atcoderName, "password"->Const.atcoderPass)).asString
     response.headers("Set-Cookie").toString.replace(",", ";")
   }
 
   def getClars()(implicit cookie: String): List[String] = {
     var clars = List.empty[String]
     val url = s"${Const.atcoderUrl}/clarifications"
-    val response: HttpResponse[String] = Http(url).headers(Seq("Cookie"->cookie)).asString
+    val response: HttpResponse[String] = Http(url)
+      .timeout(connTimeoutMs = Const.httpConnTimeout, readTimeoutMs = Const.httpReadTimeout)
+      .headers(Seq("Cookie"->cookie)).asString
     val doc = Jsoup.parse(response.body)
     val trs = doc.select("tbody").head.select("tr")
 
