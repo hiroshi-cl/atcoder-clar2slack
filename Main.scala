@@ -1,6 +1,7 @@
 import scalaj.http._
 import spray.json._
 import org.jsoup._
+import org.jsoup.select.Elements
 import collection.JavaConversions._
 
 object Main {
@@ -35,7 +36,8 @@ object Main {
       .timeout(connTimeoutMs = Const.httpConnTimeout, readTimeoutMs = Const.httpReadTimeout)
       .headers(Seq("Cookie"->cookie)).asString
     val doc = Jsoup.parse(response.body)
-    val trs = doc.select("tbody").head.select("tr")
+    val tbody = doc.select("tbody")
+    val trs = if (tbody.isEmpty()) new Elements() else tbody.head.select("tr")
 
     for (tr <- trs) {
       val fields = tr.select("td")
