@@ -23,8 +23,7 @@ trait AtcoderSupport {
     cookie
   }
 
-  def getClars(atcoderUrl: String, cookie: String): List[Clarification] = {
-    var clars = List.empty[Clarification]
+  def getClars(atcoderUrl: String)(implicit cookie: String): List[Clarification] = {
     val url = atcoderUrl + clarPath
     val response: HttpResponse[String] = Http(url)
       .timeout(connTimeoutMs = httpConnTimeout, readTimeoutMs = httpReadTimeout)
@@ -32,8 +31,7 @@ trait AtcoderSupport {
     val doc = Jsoup.parse(response.body)
     val tbody = doc.select("tbody")
     val trs = if (tbody.isEmpty()) new Elements() else tbody.head.select("tr")
-
-    for (tr <- trs) {
+    val clars = trs.map(tr => {
       val fields = tr.select("td")
 
       val problem = fields.get(0).select("a")
@@ -43,7 +41,8 @@ trait AtcoderSupport {
 
       val pattern = """([0-9]+)""".r
       val clarId = pattern.findFirstIn(reply.attr("href").toString).getOrElse("-1").toLong
-      val clar = Clarification(
+
+      Clarification(
         clarId = clarId,
         problemTitle = problem.text,
         problemUrl = Some(atcoderUrl + problem.attr("href")),
@@ -51,9 +50,7 @@ trait AtcoderSupport {
         userUrl = Some(atcoderUrl + user.attr("href")),
         clarText = question.text,
         replyUrl = Some(atcoderUrl + reply.attr("href")))
-
-      clars = clar :: clars
-    }
+    }).toList
 
     clars
   }
