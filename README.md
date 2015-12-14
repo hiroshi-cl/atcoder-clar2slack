@@ -7,12 +7,11 @@
 
 ## 使い方
 
-* sbtのインストール
-* `Const.scala` を開いてセッティング
-  * `atcoderName` : コンテストの管理権限をもつユーザのID
-  * `atcoderPass` : コンテストの管理権限をもつユーザのパスワード
-  * `atcoderUrl` : コンテストのURL(例 - "http://arc001.contest.atcoder.jp")
-  * `webhookUrl` : Slackの[Incoming Webhooks](https://my.slack.com/services/new/incoming-webhook/)を登録して、Webhook URLをペースト
-  * `sleepTime` : クラーを何ミリ秒おきに参照するかを設定できます
+* [sbt](http://www.scala-sbt.org/download.html)のインストール
+* `src/main/resources/application.conf` を開いてセッティング
+  * `atcoder.url` : コンテストのURL(例 - "http://arc001.contest.atcoder.jp")
+  * `atcoder.userId` : コンテストの管理権限をもつユーザのID
+  * `atcoder.password` : コンテストの管理権限をもつユーザのパスワード
+  * `slack.webhookUrl` : Slackの[Incoming Webhooks](https://my.slack.com/services/new/incoming-webhook/)を登録して、Webhook URLをペースト
+  * `clar.sleepTime` : クラーを何ミリ秒おきに参照するかを設定できます
 * `sbt run` で実行
-
