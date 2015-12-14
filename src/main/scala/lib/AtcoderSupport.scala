@@ -30,6 +30,9 @@ class AtcoderSupport private(atcoderUrl: String, userId: String, password: Strin
       val problem = fields.get(0).select("a")
       val user = fields.get(1).select("a")
       val question = fields.get(2)
+      val response = fields.get(3)
+      val isPublic = fields.get(4)
+
       val reply = fields.get(7).select("a")
 
       val pattern = """([0-9]+)""".r
@@ -42,6 +45,8 @@ class AtcoderSupport private(atcoderUrl: String, userId: String, password: Strin
         userId = user.text,
         userUrl = Some(atcoderUrl + user.attr("href")),
         clarText = question.text,
+        responseText = response.text,
+        isPublic = isPublic.text,
         replyUrl = Some(atcoderUrl + reply.attr("href")))
     }).toList
 
