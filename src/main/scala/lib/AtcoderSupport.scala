@@ -16,6 +16,10 @@ class AtcoderSupport private(atcoderUrl: String, userId: String, password: Strin
     response.cookies
   }
 
+  def isOwner(): Boolean = {
+    cookies.exists(cookie => cookie.getName == "__privilege" && cookie.getValue == "owner")
+  }
+
   def getClars(): List[Clarification] = {
     val url = atcoderUrl + AtcoderSupport.clarPath
     val response: HttpResponse[String] = Http(url)
@@ -23,7 +27,7 @@ class AtcoderSupport private(atcoderUrl: String, userId: String, password: Strin
       .cookies(cookies).asString
     val doc = Jsoup.parse(response.body)
     val tbody = doc.select("tbody")
-    val trs = if (tbody.isEmpty()) new Elements() else tbody.head.select("tr")
+    val trs = if (tbody.isEmpty) new Elements() else tbody.head.select("tr")
     val clars = trs.map(tr => {
       val fields = tr.select("td")
 
@@ -36,7 +40,7 @@ class AtcoderSupport private(atcoderUrl: String, userId: String, password: Strin
       val reply = fields.get(7).select("a")
 
       val pattern = """([0-9]+)""".r
-      val clarId = pattern.findFirstIn(reply.attr("href").toString).getOrElse("-1").toLong
+      val clarId = pattern.findFirstIn(reply.attr("href")).getOrElse("-1").toLong
 
       Clarification(
         clarId = clarId,
